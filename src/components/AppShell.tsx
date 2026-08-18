@@ -1,7 +1,17 @@
 import type { ReactNode } from "react"
-import { CalendarCheck2, LogOut } from "lucide-react"
+import { NavLink } from "react-router-dom"
+import { CalendarCheck2, GraduationCap, LogOut, PenLine, ShoppingBag, Sparkles } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+const NAV_ITEMS = [
+  { to: "/front", label: "Front", icon: PenLine },
+  { to: "/productos", label: "Productos", icon: ShoppingBag },
+  { to: "/servicios", label: "Servicios", icon: Sparkles },
+  { to: "/reservas", label: "Reservas", icon: CalendarCheck2 },
+  { to: "/elearning", label: "E-learning", icon: GraduationCap },
+]
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { session, signOut } = useAuth()
@@ -19,13 +29,21 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="flex flex-1 flex-col gap-1 px-3">
-          <a
-            href="/"
-            className="flex items-center gap-2.5 rounded-md bg-sidebar-accent px-3 py-2 text-sm font-medium text-sidebar-accent-foreground"
-          >
-            <CalendarCheck2 className="size-4" />
-            Reservas
-          </a>
+          {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+                )
+              }
+            >
+              <Icon className="size-4" />
+              {label}
+            </NavLink>
+          ))}
         </nav>
         <div className="border-t border-sidebar-border px-3 py-3">
           <div className="mb-2 truncate px-2 text-xs text-muted-foreground">{session?.user.email}</div>
