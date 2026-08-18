@@ -46,6 +46,7 @@ export type Service = {
   description: string
   sort_order: number
   active: boolean
+  deposit_amount: number | null
   created_at: string
   updated_at: string
 }

@@ -50,6 +50,7 @@ export default function ServiceFormDialog({
   const [duration, setDuration] = useState("")
   const [price, setPrice] = useState("")
   const [description, setDescription] = useState("")
+  const [depositAmount, setDepositAmount] = useState("")
   const [active, setActive] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
@@ -62,6 +63,7 @@ export default function ServiceFormDialog({
     setDuration(service?.duration ?? "—")
     setPrice(service?.price ?? "")
     setDescription(service?.description ?? "")
+    setDepositAmount(service?.deposit_amount != null ? String(service.deposit_amount) : "")
     setActive(service?.active ?? true)
   }, [open, service, categories, defaultBookingGroup])
 
@@ -75,6 +77,7 @@ export default function ServiceFormDialog({
       duration: duration.trim() || "—",
       price: price.trim(),
       description: description.trim(),
+      deposit_amount: depositAmount.trim() ? Number(depositAmount) : null,
       active,
     }
 
@@ -162,6 +165,18 @@ export default function ServiceFormDialog({
               <Label htmlFor="svc-price">Precio</Label>
               <Input id="svc-price" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="250 o 15–40" />
             </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="svc-deposit">Adelanto requerido (S/, opcional)</Label>
+            <Input
+              id="svc-deposit"
+              type="number"
+              step="0.01"
+              min="0"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+              placeholder="Sin definir"
+            />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="svc-desc">Descripción</Label>

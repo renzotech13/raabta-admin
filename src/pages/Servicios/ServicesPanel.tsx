@@ -132,6 +132,7 @@ export default function ServicesPanel() {
                   <TableHead>Categoría</TableHead>
                   <TableHead>Duración</TableHead>
                   <TableHead>Precio</TableHead>
+                  <TableHead>Adelanto</TableHead>
                   <TableHead>Activo</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
@@ -163,6 +164,9 @@ export default function ServicesPanel() {
                     </TableCell>
                     <TableCell className="text-sm">{s.duration}</TableCell>
                     <TableCell className="text-sm">S/ {s.price}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {s.deposit_amount != null ? `S/ ${s.deposit_amount}` : "—"}
+                    </TableCell>
                     <TableCell>
                       <Switch checked={s.active} onCheckedChange={() => toggleActive(s)} />
                     </TableCell>
