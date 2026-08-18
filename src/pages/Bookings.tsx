@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
-import { serviceName } from "@/lib/services"
+import { useServiceNames } from "@/lib/services"
 import { STATUS_LABEL, type Booking, type BookingStatus } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -56,6 +56,7 @@ function formatDate(dateStr: string) {
 }
 
 export default function Bookings() {
+  const { serviceName } = useServiceNames()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<"all" | BookingStatus>("all")

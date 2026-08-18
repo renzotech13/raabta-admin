@@ -1,23 +1,36 @@
-// Nombres de servicios para mostrar en el panel. Duplica temporalmente los ids de
-// SERVICE_GROUPS en reserva.html — cuando el catálogo se migre a Supabase (fase 3)
-// esto se reemplaza por una consulta a la tabla `services`.
-export const SERVICE_NAMES: Record<string, string> = {
-  microblading: "Microblading",
-  "micro-cejas": "Micropigmentación de cejas",
-  "micro-labios": "Micropigmentación de labios",
-  delineado: "Delineado de ojo",
-  hidralips: "Hidralips",
-  depilacion: "Depilación",
-  faciales: "Faciales",
-  rejuvenecimiento: "Rejuvenecimiento facial",
-  planing: "Planing",
-  pedicure: "Pedicure",
-  manicure: "Manicure",
-  lifting: "Lifting de pestañas",
-  pestanas: "Pestañas",
-  henna: "Henna",
-}
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export function serviceName(id: string): string {
-  return SERVICE_NAMES[id] ?? id
+export function useServiceNames() {
+  const [names, setNames] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    let active = true
+
+    async function load() {
+      const { data } = await supabase.from("services").select("id,name")
+      if (active && data) {
+        setNames(Object.fromEntries(data.map((s) => [s.id, s.name as string])))
+      }
+    }
+    load()
+
+    const channel = supabase
+      .channel("service-names")
+      .on("postgres_changes", { event: "*", schema: "public", table: "services" }, () => {
+        load()
+      })
+      .subscribe()
+
+    return () => {
+      active = false
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  function serviceName(id: string): string {
+    return names[id] ?? id
+  }
+
+  return { serviceName }
 }
