@@ -62,3 +62,99 @@ export type Product = {
   created_at: string
   updated_at: string
 }
+
+export type SiteContent = {
+  id: number
+  hero_eyebrow: string
+  hero_title: string
+  hero_subtitle: string
+  hero_image_url: string | null
+  about_eyebrow: string
+  about_title: string
+  about_body: string
+  about_image_big: string | null
+  about_image_small1: string | null
+  about_image_small2: string | null
+  footer_tagline: string
+  updated_at: string
+}
+
+export type Testimonial = {
+  id: string
+  avatar_url: string | null
+  name: string
+  service: string
+  quote: string
+  sort_order: number
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type Profile = {
+  id: string
+  role: "staff" | "alumna"
+  full_name: string | null
+  phone: string | null
+  created_at: string
+}
+
+export type Course = {
+  id: string
+  icon: string
+  title: string
+  meta: string
+  description: string
+  images: string[]
+  price: number | null
+  sort_order: number
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CourseDay = {
+  id: string
+  course_id: string
+  title: string
+  sort_order: number
+}
+
+export type LessonModality = "Video" | "Presencial"
+
+export type CourseLesson = {
+  id: string
+  day_id: string
+  title: string
+  modality: LessonModality
+  duration: string
+  video_url: string | null
+  sort_order: number
+}
+
+export type CourseMaterial = {
+  id: string
+  course_id: string
+  name: string
+  meta: string
+  file_url: string
+  sort_order: number
+}
+
+export type EnrollmentStatus = "pending" | "active" | "cancelled" | "completed"
+
+export const ENROLLMENT_STATUS_LABEL: Record<EnrollmentStatus, string> = {
+  pending: "Pendiente",
+  active: "Activa",
+  cancelled: "Cancelada",
+  completed: "Completada",
+}
+
+export type Enrollment = {
+  id: string
+  student_id: string
+  course_id: string
+  status: EnrollmentStatus
+  requested_at: string
+  decided_at: string | null
+}
