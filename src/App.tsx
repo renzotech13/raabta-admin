@@ -6,6 +6,7 @@ import Front from "@/pages/Front"
 import Productos from "@/pages/Productos"
 import Servicios from "@/pages/Servicios"
 import Elearning from "@/pages/Elearning"
+import CRM from "@/pages/CRM"
 import AppShell from "@/components/AppShell"
 
 function Gate() {
@@ -22,6 +23,7 @@ function Gate() {
         <Route path="/productos" element={<Productos />} />
         <Route path="/servicios" element={<Servicios />} />
         <Route path="/reservas" element={<Bookings />} />
+        <Route path="/conversaciones" element={<CRM />} />
         <Route path="/elearning" element={<Elearning />} />
         <Route path="*" element={<Navigate to="/reservas" replace />} />
       </Routes>

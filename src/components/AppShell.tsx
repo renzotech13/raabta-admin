@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { NavLink } from "react-router-dom"
-import { CalendarCheck2, GraduationCap, LogOut, PenLine, ShoppingBag, Sparkles } from "lucide-react"
+import { CalendarCheck2, GraduationCap, LogOut, MessagesSquare, PenLine, ShoppingBag, Sparkles } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: "/productos", label: "Productos", icon: ShoppingBag },
   { to: "/servicios", label: "Servicios", icon: Sparkles },
   { to: "/reservas", label: "Reservas", icon: CalendarCheck2 },
+  { to: "/conversaciones", label: "Conversaciones", icon: MessagesSquare },
   { to: "/elearning", label: "E-learning", icon: GraduationCap },
 ]
 

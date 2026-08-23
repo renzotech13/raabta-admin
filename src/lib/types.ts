@@ -99,6 +99,109 @@ export type Profile = {
   created_at: string
 }
 
+/* ---------- CRM: conversaciones de WhatsApp ---------- */
+
+/**
+ * 'activa' = el bot responde. 'escalada' = un humano tomó la conversación
+ * y el bot se calla (lo aplica el bot en handleMessage.ts). 'cerrada' =
+ * archivada, tampoco responde.
+ */
+export type ConversacionEstado = "activa" | "escalada" | "cerrada"
+
+/** 'humano' es una respuesta escrita por el staff desde este panel. */
+export type RolMensaje = "user" | "assistant" | "humano"
+
+export type Cliente = {
+  id: string
+  telefono: string
+  nombre: string | null
+  notas: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type Mensaje = {
+  id: string
+  conversacion_id: string
+  rol: RolMensaje
+  contenido: string
+  wa_message_id: string | null
+  created_at: string
+}
+
+/** Fila de la vista conversaciones_resumen (conversación + cliente + último mensaje). */
+export type ConversacionResumen = {
+  id: string
+  cliente_id: string
+  estado: ConversacionEstado
+  created_at: string
+  cliente_nombre: string | null
+  cliente_telefono: string
+  ultimo_contenido: string | null
+  ultimo_rol: RolMensaje | null
+  ultimo_mensaje_at: string
+  actividad_at: string
+}
+
+export type Etiqueta = {
+  id: string
+  nombre: string
+  color: EtiquetaColor
+  created_at: string
+}
+
+export type ClienteEtiqueta = {
+  cliente_id: string
+  etiqueta_id: string
+}
+
+export const ETIQUETA_COLORS = ["slate", "rose", "amber", "emerald", "sky", "violet"] as const
+export type EtiquetaColor = (typeof ETIQUETA_COLORS)[number]
+
+export const ETIQUETA_CLASSES: Record<EtiquetaColor, string> = {
+  slate: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+  rose: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-200",
+  amber: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
+  emerald: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200",
+  sky: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-200",
+  violet: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-200",
+}
+
+export type CitaEstado = "confirmada" | "cancelada" | "completada" | "no_asistio"
+
+export const CITA_ESTADO_LABEL: Record<CitaEstado, string> = {
+  confirmada: "Confirmada",
+  cancelada: "Cancelada",
+  completada: "Completada",
+  no_asistio: "No asistió",
+}
+
+export type Cita = {
+  id: string
+  cliente_id: string
+  servicio_id: string
+  inicio_utc: string
+  fin_utc: string
+  estado: CitaEstado
+  creada_por: "bot" | "humano"
+  notas: string | null
+}
+
+export type NotificacionEstado = "pendiente" | "enviada" | "fallida" | "cancelada"
+
+export type Notificacion = {
+  id: string
+  cliente_id: string
+  cita_id: string | null
+  tipo: "recordatorio_cita" | "promocion"
+  plantilla: string
+  estado: NotificacionEstado
+  programada_para: string
+  enviada_at: string | null
+  error: string | null
+  created_at: string
+}
+
 export type Course = {
   id: string
   icon: string
