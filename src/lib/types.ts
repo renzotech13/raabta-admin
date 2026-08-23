@@ -115,6 +115,7 @@ export type Cliente = {
   id: string
   telefono: string
   nombre: string | null
+  email: string | null
   notas: string | null
   created_at: string
   updated_at: string
@@ -176,6 +177,14 @@ export const CITA_ESTADO_LABEL: Record<CitaEstado, string> = {
   no_asistio: "No asistió",
 }
 
+export type ComprobanteEstado = "sin_comprobante" | "confirmado" | "en_revision"
+
+export const COMPROBANTE_ESTADO_LABEL: Record<ComprobanteEstado, string> = {
+  sin_comprobante: "Sin comprobante",
+  confirmado: "Pago confirmado",
+  en_revision: "Comprobante en revisión",
+}
+
 export type Cita = {
   id: string
   cliente_id: string
@@ -185,6 +194,10 @@ export type Cita = {
   estado: CitaEstado
   creada_por: "bot" | "humano"
   notas: string | null
+  comprobante_estado: ComprobanteEstado
+  comprobante_path: string | null
+  comprobante_monto_detectado: number | null
+  comprobante_nota: string | null
 }
 
 export type NotificacionEstado = "pendiente" | "enviada" | "fallida" | "cancelada"

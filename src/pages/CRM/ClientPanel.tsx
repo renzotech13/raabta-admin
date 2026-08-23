@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Bell, Plus, X } from "lucide-react"
+import { Bell, ImageIcon, Plus, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useServiceNames } from "@/lib/services"
 import {
   CITA_ESTADO_LABEL,
+  COMPROBANTE_ESTADO_LABEL,
   ETIQUETA_CLASSES,
   ETIQUETA_COLORS,
   type Cita,
@@ -47,6 +48,7 @@ export default function ClientPanel({
   const [citas, setCitas] = useState<Cita[]>([])
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([])
   const [notas, setNotas] = useState("")
+  const [email, setEmail] = useState<string | null>(null)
   const [guardandoNotas, setGuardandoNotas] = useState(false)
   const [nuevaEtiqueta, setNuevaEtiqueta] = useState("")
 
@@ -57,6 +59,7 @@ export default function ClientPanel({
       setCitas([])
       setNotificaciones([])
       setNotas("")
+      setEmail(null)
       return
     }
     let activo = true
@@ -64,7 +67,7 @@ export default function ClientPanel({
     async function cargar() {
       const [citasRes, cliente, notifRes] = await Promise.all([
         supabase.from("citas").select("*").eq("cliente_id", clienteId).order("inicio_utc", { ascending: false }).limit(10),
-        supabase.from("clientes").select("notas").eq("id", clienteId).maybeSingle(),
+        supabase.from("clientes").select("notas, email").eq("id", clienteId).maybeSingle(),
         supabase
           .from("notificaciones")
           .select("*")
@@ -76,13 +79,39 @@ export default function ClientPanel({
       if (citasRes.data) setCitas(citasRes.data as Cita[])
       if (notifRes.data) setNotificaciones(notifRes.data as Notificacion[])
       setNotas((cliente.data?.notas as string | null) ?? "")
+      setEmail((cliente.data?.email as string | null) ?? null)
     }
     cargar()
 
+    // El bot escribe el resultado del análisis del comprobante justo
+    // después de guardar la imagen — sin esto, el panel se queda con el
+    // estado "sin_comprobante" hasta que alguien lo recargue a mano.
+    const canal = supabase
+      .channel(`crm-citas-${clienteId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "citas", filter: `cliente_id=eq.${clienteId}` },
+        (payload) => {
+          const actualizada = payload.new as Cita
+          setCitas((previas) => previas.map((c) => (c.id === actualizada.id ? actualizada : c)))
+        },
+      )
+      .subscribe()
+
     return () => {
       activo = false
+      supabase.removeChannel(canal)
     }
   }, [clienteId])
+
+  async function verComprobante(path: string) {
+    const { data, error } = await supabase.storage.from("comprobantes").createSignedUrl(path, 60)
+    if (error || !data) {
+      toast.error("No se pudo abrir el comprobante.")
+      return
+    }
+    window.open(data.signedUrl, "_blank", "noreferrer")
+  }
 
   async function guardarNotas() {
     if (!clienteId) return
@@ -151,6 +180,7 @@ export default function ClientPanel({
         >
           {conversacion.cliente_telefono}
         </a>
+        {email && <div className="mt-0.5 truncate text-xs text-muted-foreground">{email}</div>}
       </div>
 
       <section className="border-b border-border px-5 py-4">
@@ -250,6 +280,31 @@ export default function ClientPanel({
                 <div className="text-muted-foreground">
                   {formatearCita(c.inicio_utc)} · {CITA_ESTADO_LABEL[c.estado]}
                 </div>
+                {c.comprobante_estado !== "sin_comprobante" && (
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <span
+                      className={cn(
+                        "rounded px-1.5 py-0.5 text-[10px] font-medium",
+                        c.comprobante_estado === "confirmado"
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200"
+                          : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
+                      )}
+                    >
+                      {COMPROBANTE_ESTADO_LABEL[c.comprobante_estado]}
+                      {c.comprobante_monto_detectado != null && ` · S/ ${c.comprobante_monto_detectado}`}
+                    </span>
+                    {c.comprobante_path && (
+                      <button
+                        type="button"
+                        onClick={() => verComprobante(c.comprobante_path!)}
+                        className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-primary"
+                      >
+                        <ImageIcon className="size-3" />
+                        Ver
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
