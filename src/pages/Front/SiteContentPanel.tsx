@@ -12,6 +12,7 @@ import { ImagePicker } from "@/components/ImagePicker"
 type FormState = Omit<SiteContent, "id" | "updated_at">
 
 const EMPTY: FormState = {
+  logo_url: "",
   hero_eyebrow: "",
   hero_title: "",
   hero_subtitle: "",
@@ -28,7 +29,11 @@ const EMPTY: FormState = {
   footer_tagline: "",
 }
 
-export default function SiteContentPanel({ section }: { section: "hero" | "about" | "cards" | "footer" }) {
+export default function SiteContentPanel({
+  section,
+}: {
+  section: "logo" | "hero" | "about" | "cards" | "footer"
+}) {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -44,6 +49,7 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
       } else {
         const row = data as SiteContent
         setForm({
+          logo_url: row.logo_url ?? "",
           hero_eyebrow: row.hero_eyebrow,
           hero_title: row.hero_title,
           hero_subtitle: row.hero_subtitle,
@@ -76,6 +82,7 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
     setSubmitting(true)
     const payload = {
       ...form,
+      logo_url: form.logo_url?.trim() || null,
       hero_image_url: form.hero_image_url?.trim() || null,
       about_image_big: form.about_image_big?.trim() || null,
       about_image_small1: form.about_image_small1?.trim() || null,
@@ -105,22 +112,35 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
 
   return (
     <div className="flex max-w-xl flex-col gap-4">
+      {section === "logo" && (
+        <>
+          <ImagePicker
+            label="Logo (aparece en el header y en el footer de todo el sitio)"
+            value={form.logo_url ?? null}
+            onChange={(url) => set("logo_url", url)}
+          />
+          <p className="text-sm text-muted-foreground">
+            Si lo dejas vacío, se usa el logo actual (uploads/raabta-logo-color-primario.png).
+          </p>
+        </>
+      )}
+
       {section === "hero" && (
         <>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="hero-eyebrow">Etiqueta superior</Label>
+            <Label htmlFor="hero-eyebrow">Etiqueta superior (arriba del título, portada)</Label>
             <Input id="hero-eyebrow" value={form.hero_eyebrow} onChange={(e) => set("hero_eyebrow", e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="hero-title">Título</Label>
+            <Label htmlFor="hero-title">Título principal (portada)</Label>
             <Textarea id="hero-title" value={form.hero_title} onChange={(e) => set("hero_title", e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="hero-subtitle">Subtítulo</Label>
+            <Label htmlFor="hero-subtitle">Subtítulo (debajo del título, portada)</Label>
             <Textarea id="hero-subtitle" value={form.hero_subtitle} onChange={(e) => set("hero_subtitle", e.target.value)} />
           </div>
           <ImagePicker
-            label="Imagen"
+            label="Foto grande de la portada (debajo del título)"
             value={form.hero_image_url ?? null}
             onChange={(url) => set("hero_image_url", url)}
           />
@@ -130,30 +150,30 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
       {section === "about" && (
         <>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="about-eyebrow">Etiqueta superior</Label>
+            <Label htmlFor="about-eyebrow">Etiqueta superior (sección "Sobre nosotros")</Label>
             <Input id="about-eyebrow" value={form.about_eyebrow} onChange={(e) => set("about_eyebrow", e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="about-title">Título</Label>
+            <Label htmlFor="about-title">Título (sección "Sobre nosotros")</Label>
             <Textarea id="about-title" value={form.about_title} onChange={(e) => set("about_title", e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="about-body">Descripción</Label>
+            <Label htmlFor="about-body">Descripción (sección "Sobre nosotros")</Label>
             <Textarea id="about-body" value={form.about_body} onChange={(e) => set("about_body", e.target.value)} />
           </div>
           <div className="flex flex-col gap-4">
             <ImagePicker
-              label="Imagen grande"
+              label='Foto grande, a la izquierda ("Sobre nosotros")'
               value={form.about_image_big ?? null}
               onChange={(url) => set("about_image_big", url)}
             />
             <ImagePicker
-              label="Imagen pequeña 1"
+              label='Foto pequeña de arriba, a la derecha ("Sobre nosotros")'
               value={form.about_image_small1 ?? null}
               onChange={(url) => set("about_image_small1", url)}
             />
             <ImagePicker
-              label="Imagen pequeña 2"
+              label='Foto pequeña de abajo, a la derecha ("Sobre nosotros")'
               value={form.about_image_small2 ?? null}
               onChange={(url) => set("about_image_small2", url)}
             />

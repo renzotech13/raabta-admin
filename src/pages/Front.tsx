@@ -8,18 +8,22 @@ export default function Front() {
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">Front</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Textos e imágenes de index.html: hero, sobre nosotros, testimonios y footer.
+          Textos e imágenes de index.html: logo, hero, sobre nosotros, testimonios y footer.
         </p>
       </div>
 
-      <Tabs defaultValue="hero">
+      <Tabs defaultValue="logo">
         <TabsList className="mb-6">
+          <TabsTrigger value="logo">Logo</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="about">Sobre nosotros</TabsTrigger>
           <TabsTrigger value="cards">Tarjetas</TabsTrigger>
           <TabsTrigger value="testimonials">Testimonios</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
         </TabsList>
+        <TabsContent value="logo">
+          <SiteContentPanel section="logo" />
+        </TabsContent>
         <TabsContent value="hero">
           <SiteContentPanel section="hero" />
         </TabsContent>

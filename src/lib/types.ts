@@ -65,6 +65,7 @@ export type Product = {
 
 export type SiteContent = {
   id: number
+  logo_url: string | null
   hero_eyebrow: string
   hero_title: string
   hero_subtitle: string
