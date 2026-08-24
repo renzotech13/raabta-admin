@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ImagePicker } from "@/components/ImagePicker"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   Dialog,
@@ -100,15 +101,11 @@ function ProductFormDialog({
             <Label htmlFor="prod-desc">Descripción</Label>
             <Textarea id="prod-desc" required value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="prod-image">Imagen (URL o ruta, opcional)</Label>
-            <Input
-              id="prod-image"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://… o uploads/producto.jpg"
-            />
-          </div>
+          <ImagePicker
+            label="Imagen (opcional)"
+            value={imageUrl || null}
+            onChange={(url) => setImageUrl(url ?? "")}
+          />
           <div className="flex items-center gap-2">
             <Switch id="prod-active" checked={active} onCheckedChange={setActive} />
             <Label htmlFor="prod-active">Activo (visible en el sitio)</Label>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ImagePicker } from "@/components/ImagePicker"
 
 type FormState = Omit<SiteContent, "id" | "updated_at">
 
@@ -21,10 +22,12 @@ const EMPTY: FormState = {
   about_image_big: "",
   about_image_small1: "",
   about_image_small2: "",
+  salon_image_url: "",
+  academia_image_url: "",
   footer_tagline: "",
 }
 
-export default function SiteContentPanel({ section }: { section: "hero" | "about" | "footer" }) {
+export default function SiteContentPanel({ section }: { section: "hero" | "about" | "cards" | "footer" }) {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -50,6 +53,8 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
           about_image_big: row.about_image_big ?? "",
           about_image_small1: row.about_image_small1 ?? "",
           about_image_small2: row.about_image_small2 ?? "",
+          salon_image_url: row.salon_image_url ?? "",
+          academia_image_url: row.academia_image_url ?? "",
           footer_tagline: row.footer_tagline,
         })
       }
@@ -73,6 +78,8 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
       about_image_big: form.about_image_big?.trim() || null,
       about_image_small1: form.about_image_small1?.trim() || null,
       about_image_small2: form.about_image_small2?.trim() || null,
+      salon_image_url: form.salon_image_url?.trim() || null,
+      academia_image_url: form.academia_image_url?.trim() || null,
     }
     const { error } = await supabase.from("site_content").update(payload).eq("id", 1)
     setSubmitting(false)
@@ -109,15 +116,11 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
             <Label htmlFor="hero-subtitle">Subtítulo</Label>
             <Textarea id="hero-subtitle" value={form.hero_subtitle} onChange={(e) => set("hero_subtitle", e.target.value)} />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="hero-image">Imagen (URL o ruta)</Label>
-            <Input
-              id="hero-image"
-              value={form.hero_image_url ?? ""}
-              onChange={(e) => set("hero_image_url", e.target.value)}
-              placeholder="assets/hero-image.webp"
-            />
-          </div>
+          <ImagePicker
+            label="Imagen"
+            value={form.hero_image_url ?? null}
+            onChange={(url) => set("hero_image_url", url)}
+          />
         </>
       )}
 
@@ -135,35 +138,41 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
             <Label htmlFor="about-body">Descripción</Label>
             <Textarea id="about-body" value={form.about_body} onChange={(e) => set("about_body", e.target.value)} />
           </div>
-          <div className="grid grid-cols-1 gap-3">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="about-img-big">Imagen grande (URL o ruta)</Label>
-              <Input
-                id="about-img-big"
-                value={form.about_image_big ?? ""}
-                onChange={(e) => set("about_image_big", e.target.value)}
-                placeholder="assets/gallery-1.webp"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="about-img-small1">Imagen pequeña 1</Label>
-              <Input
-                id="about-img-small1"
-                value={form.about_image_small1 ?? ""}
-                onChange={(e) => set("about_image_small1", e.target.value)}
-                placeholder="assets/gallery-5.webp"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="about-img-small2">Imagen pequeña 2</Label>
-              <Input
-                id="about-img-small2"
-                value={form.about_image_small2 ?? ""}
-                onChange={(e) => set("about_image_small2", e.target.value)}
-                placeholder="assets/gallery-4.webp"
-              />
-            </div>
+          <div className="flex flex-col gap-4">
+            <ImagePicker
+              label="Imagen grande"
+              value={form.about_image_big ?? null}
+              onChange={(url) => set("about_image_big", url)}
+            />
+            <ImagePicker
+              label="Imagen pequeña 1"
+              value={form.about_image_small1 ?? null}
+              onChange={(url) => set("about_image_small1", url)}
+            />
+            <ImagePicker
+              label="Imagen pequeña 2"
+              value={form.about_image_small2 ?? null}
+              onChange={(url) => set("about_image_small2", url)}
+            />
           </div>
+        </>
+      )}
+
+      {section === "cards" && (
+        <>
+          <ImagePicker
+            label='Imagen tarjeta "Salón"'
+            value={form.salon_image_url ?? null}
+            onChange={(url) => set("salon_image_url", url)}
+          />
+          <ImagePicker
+            label='Imagen tarjeta "Academia"'
+            value={form.academia_image_url ?? null}
+            onChange={(url) => set("academia_image_url", url)}
+          />
+          <p className="text-sm text-muted-foreground">
+            La tarjeta "Belleza" muestra la imagen del primer producto activo (se edita en Productos).
+          </p>
         </>
       )}
 

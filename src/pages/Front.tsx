@@ -16,6 +16,7 @@ export default function Front() {
         <TabsList className="mb-6">
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="about">Sobre nosotros</TabsTrigger>
+          <TabsTrigger value="cards">Tarjetas</TabsTrigger>
           <TabsTrigger value="testimonials">Testimonios</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
         </TabsList>
@@ -24,6 +25,9 @@ export default function Front() {
         </TabsContent>
         <TabsContent value="about">
           <SiteContentPanel section="about" />
+        </TabsContent>
+        <TabsContent value="cards">
+          <SiteContentPanel section="cards" />
         </TabsContent>
         <TabsContent value="testimonials">
           <TestimonialsPanel />

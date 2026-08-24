@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { ImagePicker } from "@/components/ImagePicker"
 import {
   Dialog,
   DialogContent,
@@ -116,14 +117,14 @@ export default function CategoryFormDialog({
             <Label htmlFor="cat-desc">Descripción</Label>
             <Textarea id="cat-desc" required value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label>Imágenes (rutas o URLs, hasta 3)</Label>
+          <div className="flex flex-col gap-4">
+            <Label>Imágenes (hasta 3)</Label>
             {images.map((img, i) => (
-              <Input
+              <ImagePicker
                 key={i}
-                value={img}
-                onChange={(e) => setImages((prev) => prev.map((v, idx) => (idx === i ? e.target.value : v)))}
-                placeholder={`assets/service-${i + 1}.webp`}
+                label={`Imagen ${i + 1}`}
+                value={img || null}
+                onChange={(url) => setImages((prev) => prev.map((v, idx) => (idx === i ? url ?? "" : v)))}
               />
             ))}
           </div>

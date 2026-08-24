@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { ImagePicker } from "@/components/ImagePicker"
 import {
   Dialog,
   DialogContent,
@@ -89,15 +90,11 @@ export default function TestimonialFormDialog({
             <Label htmlFor="t-quote">Testimonio</Label>
             <Textarea id="t-quote" required value={quote} onChange={(e) => setQuote(e.target.value)} />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="t-avatar">Foto (URL o ruta, opcional)</Label>
-            <Input
-              id="t-avatar"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              placeholder="https://… o assets/avatar-1.webp"
-            />
-          </div>
+          <ImagePicker
+            label="Foto (opcional)"
+            value={avatarUrl || null}
+            onChange={(url) => setAvatarUrl(url ?? "")}
+          />
           <div className="flex items-center gap-2">
             <Switch id="t-active" checked={active} onCheckedChange={setActive} />
             <Label htmlFor="t-active">Activo (visible en el sitio)</Label>
