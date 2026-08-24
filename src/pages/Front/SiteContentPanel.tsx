@@ -28,13 +28,15 @@ const EMPTY: FormState = {
   belleza_image_url: "",
   salon_image_url: "",
   academia_image_url: "",
+  compare_before_image: "",
+  compare_after_image: "",
   footer_tagline: "",
 }
 
 export default function SiteContentPanel({
   section,
 }: {
-  section: "logo" | "hero" | "about" | "cards" | "footer"
+  section: "logo" | "hero" | "about" | "cards" | "compare" | "footer"
 }) {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [loading, setLoading] = useState(true)
@@ -67,6 +69,8 @@ export default function SiteContentPanel({
           belleza_image_url: row.belleza_image_url ?? "",
           salon_image_url: row.salon_image_url ?? "",
           academia_image_url: row.academia_image_url ?? "",
+          compare_before_image: row.compare_before_image ?? "",
+          compare_after_image: row.compare_after_image ?? "",
           footer_tagline: row.footer_tagline,
         })
       }
@@ -94,6 +98,8 @@ export default function SiteContentPanel({
       belleza_image_url: form.belleza_image_url?.trim() || null,
       salon_image_url: form.salon_image_url?.trim() || null,
       academia_image_url: form.academia_image_url?.trim() || null,
+      compare_before_image: form.compare_before_image?.trim() || null,
+      compare_after_image: form.compare_after_image?.trim() || null,
     }
     const { error } = await supabase.from("site_content").update(payload).eq("id", 1)
     setSubmitting(false)
@@ -231,6 +237,24 @@ export default function SiteContentPanel({
           />
           <p className="text-sm text-muted-foreground">
             Si dejas vacía la imagen de "Belleza", se usa la foto del primer producto activo (se edita en Productos).
+          </p>
+        </>
+      )}
+
+      {section === "compare" && (
+        <>
+          <ImagePicker
+            label='Foto "Antes" (comparador Antes/Después, sección "Por qué elegir Raabta")'
+            value={form.compare_before_image ?? null}
+            onChange={(url) => set("compare_before_image", url)}
+          />
+          <ImagePicker
+            label='Foto "Después" (comparador Antes/Después, sección "Por qué elegir Raabta")'
+            value={form.compare_after_image ?? null}
+            onChange={(url) => set("compare_after_image", url)}
+          />
+          <p className="text-sm text-muted-foreground">
+            Usa la misma pose y encuadre en ambas fotos para que el deslizador de comparación se vea natural.
           </p>
         </>
       )}

@@ -81,6 +81,8 @@ export type SiteContent = {
   belleza_image_url: string | null
   salon_image_url: string | null
   academia_image_url: string | null
+  compare_before_image: string | null
+  compare_after_image: string | null
   footer_tagline: string
   updated_at: string
 }
