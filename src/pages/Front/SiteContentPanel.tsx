@@ -13,6 +13,8 @@ type FormState = Omit<SiteContent, "id" | "updated_at">
 
 const EMPTY: FormState = {
   logo_url: "",
+  logo_header_height: 54,
+  logo_footer_height: 60,
   hero_eyebrow: "",
   hero_title: "",
   hero_subtitle: "",
@@ -50,6 +52,8 @@ export default function SiteContentPanel({
         const row = data as SiteContent
         setForm({
           logo_url: row.logo_url ?? "",
+          logo_header_height: row.logo_header_height,
+          logo_footer_height: row.logo_footer_height,
           hero_eyebrow: row.hero_eyebrow,
           hero_title: row.hero_title,
           hero_subtitle: row.hero_subtitle,
@@ -121,6 +125,33 @@ export default function SiteContentPanel({
           />
           <p className="text-sm text-muted-foreground">
             Si lo dejas vacío, se usa el logo actual (uploads/raabta-logo-color-primario.png).
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="logo-header-height">Alto en el header (px)</Label>
+              <Input
+                id="logo-header-height"
+                type="number"
+                min={16}
+                max={200}
+                value={form.logo_header_height}
+                onChange={(e) => set("logo_header_height", Number(e.target.value) || 0)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="logo-footer-height">Alto en el footer (px)</Label>
+              <Input
+                id="logo-footer-height"
+                type="number"
+                min={16}
+                max={200}
+                value={form.logo_footer_height}
+                onChange={(e) => set("logo_footer_height", Number(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            El ancho se ajusta solo para no deformar el logo — solo se controla el alto.
           </p>
         </>
       )}
