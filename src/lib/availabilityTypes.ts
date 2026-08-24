@@ -14,3 +14,9 @@ export type Bloqueo = {
 }
 
 export const DIAS_SEMANA = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"] as const
+
+export type Configuracion = {
+  id: true
+  recordatorio_horas_antes: number
+  updated_at: string
+}
