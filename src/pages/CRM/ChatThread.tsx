@@ -1,18 +1,47 @@
 import { useEffect, useRef, useState, type FormEvent } from "react"
 import { toast } from "sonner"
-import { AlertTriangle, Bot, Send, UserRound } from "lucide-react"
+import { AlertTriangle, Bot, ChevronDown, Paperclip, Send, UserRound } from "lucide-react"
 import { supabase } from "@/lib/supabase"
-import { enviarMensajeHumano, BotApiError } from "@/lib/botApi"
-import type { ConversacionResumen, Mensaje } from "@/lib/types"
+import { enviarMensajeHumano, enviarPlantillaMensaje, BotApiError } from "@/lib/botApi"
+import type { ConversacionResumen, Mensaje, PlantillaMedia } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { horasRestantesVentana, ventanaAbierta } from "./utils"
 
 function horaCorta(iso: string) {
   return new Date(iso).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })
+}
+
+function MediaEnBurbuja({ mensaje }: { mensaje: Mensaje }) {
+  if (!mensaje.media_url) return null
+  if (mensaje.media_type === "image") {
+    return <img src={mensaje.media_url} alt="" className="mb-1.5 max-h-64 rounded-md object-cover" />
+  }
+  if (mensaje.media_type === "video") {
+    return <video src={mensaje.media_url} controls className="mb-1.5 max-h-64 rounded-md" />
+  }
+  if (mensaje.media_type === "audio") {
+    return <audio src={mensaje.media_url} controls className="mb-1.5 w-full max-w-64" />
+  }
+  return (
+    <a
+      href={mensaje.media_url}
+      target="_blank"
+      rel="noreferrer"
+      className="mb-1.5 block text-xs underline underline-offset-2"
+    >
+      Ver archivo
+    </a>
+  )
 }
 
 function Burbuja({ mensaje }: { mensaje: Mensaje }) {
@@ -22,6 +51,7 @@ function Burbuja({ mensaje }: { mensaje: Mensaje }) {
   return (
     <div className={cn("flex", esCliente ? "justify-start" : "justify-end")}>
       <div className={cn("max-w-[75%] rounded-lg px-3 py-2", esCliente ? "bg-muted" : "bg-primary text-primary-foreground")}>
+        <MediaEnBurbuja mensaje={mensaje} />
         <p className="text-sm whitespace-pre-wrap break-words">{mensaje.contenido}</p>
         <div
           className={cn(
@@ -52,6 +82,7 @@ export default function ChatThread({ conversacion }: { conversacion: Conversacio
   const [texto, setTexto] = useState("")
   const [enviando, setEnviando] = useState(false)
   const [cambiandoModo, setCambiandoModo] = useState(false)
+  const [plantillas, setPlantillas] = useState<PlantillaMedia[]>([])
   const finRef = useRef<HTMLDivElement>(null)
 
   const conversacionId = conversacion?.id ?? null
@@ -94,6 +125,17 @@ export default function ChatThread({ conversacion }: { conversacion: Conversacio
     }
   }, [conversacionId])
 
+  // Se carga una sola vez (no realtime): la biblioteca cambia poco y no
+  // amerita una suscripción aparte solo para el selector de envío rápido.
+  useEffect(() => {
+    supabase
+      .from("plantillas_media")
+      .select("*")
+      .eq("activo", true)
+      .order("nombre")
+      .then(({ data }) => setPlantillas((data as PlantillaMedia[]) ?? []))
+  }, [])
+
   useEffect(() => {
     finRef.current?.scrollIntoView({ block: "end" })
   }, [mensajes])
@@ -125,6 +167,18 @@ export default function ChatThread({ conversacion }: { conversacion: Conversacio
       setTexto("")
     } catch (err) {
       toast.error(err instanceof BotApiError ? err.message : "No se pudo enviar el mensaje.")
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  async function enviarPlantilla(plantillaId: string) {
+    if (!conversacion) return
+    setEnviando(true)
+    try {
+      await enviarPlantillaMensaje(conversacion.id, plantillaId)
+    } catch (err) {
+      toast.error(err instanceof BotApiError ? err.message : "No se pudo enviar la multimedia.")
     } finally {
       setEnviando(false)
     }
@@ -193,6 +247,25 @@ export default function ChatThread({ conversacion }: { conversacion: Conversacio
         )}
 
         <div className="flex items-end gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              disabled={!abierta || enviando || plantillas.length === 0}
+              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-md border border-border px-2.5 text-xs font-medium text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Adjuntar multimedia"
+              title={plantillas.length === 0 ? "No hay multimedia en la biblioteca" : "Adjuntar multimedia"}
+            >
+              <Paperclip className="size-4" />
+              <ChevronDown className="size-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {plantillas.map((p) => (
+                <DropdownMenuItem key={p.id} onClick={() => enviarPlantilla(p.id)}>
+                  {p.nombre}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Textarea
             value={texto}
             onChange={(e) => setTexto(e.target.value)}

@@ -27,6 +27,7 @@ const MENSAJES_ERROR: Record<string, string> = {
   conversacion_no_encontrada: "Esa conversación ya no existe.",
   cita_no_encontrada: "Esa cita ya no existe.",
   bloqueo_no_encontrado: "Ese bloqueo ya no existe.",
+  plantilla_no_encontrada: "Esa multimedia ya no existe.",
   whatsapp_send_failed: "WhatsApp rechazó el envío. Revisa los logs del bot.",
   red: "No se pudo conectar con el bot. Revisa que esté en línea.",
 }
@@ -63,6 +64,10 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 export function enviarMensajeHumano(conversacionId: string, texto: string) {
   return post<{ mensaje: Mensaje }>("/admin/mensajes", { conversacionId, texto })
+}
+
+export function enviarPlantillaMensaje(conversacionId: string, plantillaId: string) {
+  return post<{ mensaje: Mensaje }>("/admin/mensajes", { conversacionId, plantillaId })
 }
 
 export function enviarPromocion(params: { clienteIds: string[]; plantilla: string; parametros?: string[] }) {

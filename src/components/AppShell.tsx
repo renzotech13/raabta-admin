@@ -4,6 +4,7 @@ import {
   CalendarCheck2,
   CalendarClock,
   GraduationCap,
+  Images,
   LogOut,
   MessagesSquare,
   PenLine,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { to: "/reservas", label: "Reservas", icon: CalendarCheck2 },
   { to: "/disponibilidad", label: "Disponibilidad", icon: CalendarClock },
   { to: "/conversaciones", label: "Conversaciones", icon: MessagesSquare },
+  { to: "/multimedia", label: "Multimedia", icon: Images },
   { to: "/elearning", label: "E-learning", icon: GraduationCap },
 ]
 

@@ -129,13 +129,36 @@ export type Cliente = {
   updated_at: string
 }
 
+export type TipoMedia = "image" | "video" | "audio" | "document"
+
 export type Mensaje = {
   id: string
   conversacion_id: string
   rol: RolMensaje
   contenido: string
   wa_message_id: string | null
+  media_url: string | null
+  media_type: TipoMedia | null
   created_at: string
+}
+
+export type PlantillaMedia = {
+  id: string
+  nombre: string
+  tipo: TipoMedia
+  storage_path: string
+  descripcion_uso: string
+  caption: string | null
+  activo: boolean
+  created_at: string
+  updated_at: string
+}
+
+export const TIPO_MEDIA_LABEL: Record<TipoMedia, string> = {
+  image: "Imagen",
+  video: "Video",
+  audio: "Audio",
+  document: "Documento",
 }
 
 /** Fila de la vista conversaciones_resumen (conversación + cliente + último mensaje). */
