@@ -75,6 +75,7 @@ export type SiteContent = {
   about_image_big: string | null
   about_image_small1: string | null
   about_image_small2: string | null
+  belleza_image_url: string | null
   salon_image_url: string | null
   academia_image_url: string | null
   footer_tagline: string

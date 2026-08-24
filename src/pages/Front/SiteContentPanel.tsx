@@ -22,6 +22,7 @@ const EMPTY: FormState = {
   about_image_big: "",
   about_image_small1: "",
   about_image_small2: "",
+  belleza_image_url: "",
   salon_image_url: "",
   academia_image_url: "",
   footer_tagline: "",
@@ -53,6 +54,7 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
           about_image_big: row.about_image_big ?? "",
           about_image_small1: row.about_image_small1 ?? "",
           about_image_small2: row.about_image_small2 ?? "",
+          belleza_image_url: row.belleza_image_url ?? "",
           salon_image_url: row.salon_image_url ?? "",
           academia_image_url: row.academia_image_url ?? "",
           footer_tagline: row.footer_tagline,
@@ -78,6 +80,7 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
       about_image_big: form.about_image_big?.trim() || null,
       about_image_small1: form.about_image_small1?.trim() || null,
       about_image_small2: form.about_image_small2?.trim() || null,
+      belleza_image_url: form.belleza_image_url?.trim() || null,
       salon_image_url: form.salon_image_url?.trim() || null,
       academia_image_url: form.academia_image_url?.trim() || null,
     }
@@ -161,6 +164,11 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
       {section === "cards" && (
         <>
           <ImagePicker
+            label='Imagen tarjeta "Belleza"'
+            value={form.belleza_image_url ?? null}
+            onChange={(url) => set("belleza_image_url", url)}
+          />
+          <ImagePicker
             label='Imagen tarjeta "Salón"'
             value={form.salon_image_url ?? null}
             onChange={(url) => set("salon_image_url", url)}
@@ -171,7 +179,7 @@ export default function SiteContentPanel({ section }: { section: "hero" | "about
             onChange={(url) => set("academia_image_url", url)}
           />
           <p className="text-sm text-muted-foreground">
-            La tarjeta "Belleza" muestra la imagen del primer producto activo (se edita en Productos).
+            Si dejas vacía la imagen de "Belleza", se usa la foto del primer producto activo (se edita en Productos).
           </p>
         </>
       )}
