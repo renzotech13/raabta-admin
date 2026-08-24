@@ -1,5 +1,5 @@
 import { supabase } from "./supabase"
-import type { Mensaje } from "./types"
+import type { Cita, CitaEstado, Mensaje } from "./types"
 
 const BASE_URL = import.meta.env.VITE_BOT_API_URL as string | undefined
 
@@ -25,6 +25,8 @@ const MENSAJES_ERROR: Record<string, string> = {
   invalid_token: "Tu sesión expiró. Vuelve a iniciar sesión.",
   forbidden: "Tu usuario no tiene permisos de staff.",
   conversacion_no_encontrada: "Esa conversación ya no existe.",
+  cita_no_encontrada: "Esa cita ya no existe.",
+  bloqueo_no_encontrado: "Ese bloqueo ya no existe.",
   whatsapp_send_failed: "WhatsApp rechazó el envío. Revisa los logs del bot.",
   red: "No se pudo conectar con el bot. Revisa que esté en línea.",
 }
@@ -65,4 +67,18 @@ export function enviarMensajeHumano(conversacionId: string, texto: string) {
 
 export function enviarPromocion(params: { clienteIds: string[]; plantilla: string; parametros?: string[] }) {
   return post<{ enviadas: number; fallidas: { clienteId: string; motivo: string }[] }>("/admin/promociones", params)
+}
+
+/**
+ * Pasa por el bot (no un update directo a Supabase) para que, al cancelar,
+ * también borre el evento de Calendar — el navegador nunca tiene las
+ * credenciales de la service account.
+ */
+export function actualizarEstadoCita(citaId: string, estado: CitaEstado) {
+  return post<{ cita: Cita }>(`/admin/citas/${citaId}/estado`, { estado })
+}
+
+/** Mismo motivo que actualizarEstadoCita: si el bloqueo vino de Calendar, hay que borrar el evento también. */
+export function eliminarBloqueo(bloqueoId: string) {
+  return post<Record<string, never>>(`/admin/bloqueos/${bloqueoId}/eliminar`, {})
 }

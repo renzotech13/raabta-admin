@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { actualizarEstadoCita as actualizarEstadoCitaBot, BotApiError } from "@/lib/botApi"
 import { CITA_ESTADO_LABEL, type Cita, type CitaEstado } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -112,12 +113,15 @@ export default function Bookings() {
   async function updateStatus(id: string, estado: CitaEstado) {
     const previous = citas
     setCitas((rows) => rows.map((c) => (c.id === id ? { ...c, estado } : c)))
-    const { error } = await supabase.from("citas").update({ estado }).eq("id", id)
-    if (error) {
-      setCitas(previous)
-      toast.error("No se pudo actualizar el estado.")
-    } else {
+    try {
+      // Vía el bot, no un update directo: si se cancela, el bot también
+      // borra el evento de Calendar — un update directo a Supabase dejaba
+      // el evento huérfano.
+      await actualizarEstadoCitaBot(id, estado)
       toast.success(`Cita marcada como ${CITA_ESTADO_LABEL[estado].toLowerCase()}.`)
+    } catch (err) {
+      setCitas(previous)
+      toast.error(err instanceof BotApiError ? err.message : "No se pudo actualizar el estado.")
     }
   }
 

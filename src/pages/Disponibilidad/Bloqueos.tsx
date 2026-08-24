@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react"
 import { toast } from "sonner"
 import { Info, Plus, Trash2 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { eliminarBloqueo as eliminarBloqueoBot, BotApiError } from "@/lib/botApi"
 import type { Bloqueo } from "@/lib/availabilityTypes"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -88,10 +89,14 @@ export default function Bloqueos() {
   async function eliminar(id: string) {
     const previos = bloqueos
     setBloqueos((b) => b.filter((x) => x.id !== id))
-    const { error } = await supabase.from("bloqueos").delete().eq("id", id)
-    if (error) {
+    try {
+      // Vía el bot, no un delete directo: si el bloqueo vino de un evento
+      // externo de Calendar, el bot borra también ese evento — un delete
+      // directo a Supabase lo dejaba huérfano en el calendario.
+      await eliminarBloqueoBot(id)
+    } catch (err) {
       setBloqueos(previos)
-      toast.error("No se pudo quitar el bloqueo.")
+      toast.error(err instanceof BotApiError ? err.message : "No se pudo quitar el bloqueo.")
     }
   }
 
