@@ -139,6 +139,7 @@ export type Mensaje = {
   wa_message_id: string | null
   media_url: string | null
   media_type: TipoMedia | null
+  error_entrega: string | null
   created_at: string
 }
 

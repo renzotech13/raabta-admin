@@ -53,6 +53,15 @@ function Burbuja({ mensaje }: { mensaje: Mensaje }) {
       <div className={cn("max-w-[75%] rounded-lg px-3 py-2", esCliente ? "bg-muted" : "bg-primary text-primary-foreground")}>
         <MediaEnBurbuja mensaje={mensaje} />
         <p className="text-sm whitespace-pre-wrap break-words">{mensaje.contenido}</p>
+        {mensaje.error_entrega && (
+          <p
+            className="mt-1 flex items-center gap-1 text-[11px] font-medium text-destructive"
+            title={mensaje.error_entrega}
+          >
+            <AlertTriangle className="size-3 shrink-0" />
+            No le llegó a la clienta
+          </p>
+        )}
         <div
           className={cn(
             "mt-1 flex items-center gap-1 text-[10px]",
