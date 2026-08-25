@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent } from "react"
 import { toast } from "sonner"
 import { Info, Plus, X } from "lucide-react"
 import { enviarPromocion, BotApiError } from "@/lib/botApi"
-import { ETIQUETA_CLASSES, type ConversacionResumen, type Etiqueta } from "@/lib/types"
+import { ETIQUETA_CLASSES, type Cliente, type Etiqueta } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,32 +14,28 @@ export default function PromoDialog({
   onOpenChange,
   etiquetas,
   etiquetasPorCliente,
-  conversaciones,
+  clientes,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   etiquetas: Etiqueta[]
   etiquetasPorCliente: Map<string, Etiqueta[]>
-  conversaciones: ConversacionResumen[]
+  clientes: Cliente[]
 }) {
   const [plantilla, setPlantilla] = useState("")
   const [parametros, setParametros] = useState<string[]>([])
   const [seleccionadas, setSeleccionadas] = useState<string[]>([])
   const [enviando, setEnviando] = useState(false)
 
-  // Un cliente puede tener varias conversaciones; la campaña va por
-  // persona, así que se deduplica por cliente_id.
+  // La lista sale de TODA la base de clientas (haya escrito o no al bot
+  // antes) — así se puede targetear también a las importadas offline, no
+  // solo a quienes ya tienen una conversación.
   const destinatarios = useMemo(() => {
-    const ids = new Set<string>()
-    for (const c of conversaciones) {
-      if (seleccionadas.length > 0) {
-        const suyas = etiquetasPorCliente.get(c.cliente_id) ?? []
-        if (!suyas.some((e) => seleccionadas.includes(e.id))) continue
-      }
-      ids.add(c.cliente_id)
-    }
-    return [...ids]
-  }, [conversaciones, etiquetasPorCliente, seleccionadas])
+    if (seleccionadas.length === 0) return clientes.map((c) => c.id)
+    return clientes
+      .filter((c) => (etiquetasPorCliente.get(c.id) ?? []).some((e) => seleccionadas.includes(e.id)))
+      .map((c) => c.id)
+  }, [clientes, etiquetasPorCliente, seleccionadas])
 
   function alternarEtiqueta(id: string) {
     setSeleccionadas((previas) => (previas.includes(id) ? previas.filter((e) => e !== id) : [...previas, id]))
@@ -145,7 +141,7 @@ export default function PromoDialog({
             <Label>Destinatarias</Label>
             {etiquetas.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                Aún no hay etiquetas. Se enviará a todas las clientas con conversación.
+                Aún no hay etiquetas. Se enviará a todas las clientas registradas.
               </p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
@@ -167,7 +163,7 @@ export default function PromoDialog({
             )}
             <p className="text-xs text-muted-foreground">
               {seleccionadas.length === 0
-                ? "Sin filtro: todas las clientas con conversación."
+                ? "Sin filtro: todas las clientas registradas."
                 : "Solo quienes tengan alguna de las etiquetas marcadas."}{" "}
               <strong className="text-foreground">{destinatarios.length} destinataria(s).</strong>
             </p>

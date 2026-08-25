@@ -1,4 +1,4 @@
-import type { ConversacionResumen } from "@/lib/types"
+import { ETIQUETA_COLORS, type ConversacionResumen, type EtiquetaColor } from "@/lib/types"
 
 const VENTANA_MS = 24 * 60 * 60_000
 
@@ -21,4 +21,11 @@ export function ventanaAbierta(c: ConversacionResumen, ahora = Date.now()): bool
 export function horasRestantesVentana(c: ConversacionResumen, ahora = Date.now()): number {
   const restante = VENTANA_MS - (ahora - new Date(c.ultimo_mensaje_at).getTime())
   return Math.max(0, Math.floor(restante / 3_600_000))
+}
+
+/** Color estable por nombre: la misma etiqueta se ve igual siempre. */
+export function colorPorNombre(nombre: string): EtiquetaColor {
+  let hash = 0
+  for (const char of nombre) hash = (hash + char.charCodeAt(0)) % 997
+  return ETIQUETA_COLORS[hash % ETIQUETA_COLORS.length]
 }

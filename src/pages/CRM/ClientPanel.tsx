@@ -7,17 +7,16 @@ import {
   CITA_ESTADO_LABEL,
   COMPROBANTE_ESTADO_LABEL,
   ETIQUETA_CLASSES,
-  ETIQUETA_COLORS,
   type Cita,
   type ConversacionResumen,
   type Etiqueta,
-  type EtiquetaColor,
   type Notificacion,
 } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { colorPorNombre } from "./utils"
 
 function formatearCita(iso: string) {
   return new Date(iso).toLocaleString("es-PE", {
@@ -26,13 +25,6 @@ function formatearCita(iso: string) {
     hour: "2-digit",
     minute: "2-digit",
   })
-}
-
-/** Color estable por nombre: la misma etiqueta se ve igual siempre. */
-function colorPorNombre(nombre: string): EtiquetaColor {
-  let hash = 0
-  for (const char of nombre) hash = (hash + char.charCodeAt(0)) % 997
-  return ETIQUETA_COLORS[hash % ETIQUETA_COLORS.length]
 }
 
 export default function ClientPanel({

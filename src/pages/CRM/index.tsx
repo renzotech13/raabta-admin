@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-import { Megaphone } from "lucide-react"
+import { Megaphone, UserPlus } from "lucide-react"
 import { supabase } from "@/lib/supabase"
-import type { ClienteEtiqueta, ConversacionResumen, Etiqueta } from "@/lib/types"
+import type { Cliente, ClienteEtiqueta, ConversacionResumen, Etiqueta } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,6 +10,7 @@ import ConversationList from "./ConversationList"
 import ChatThread from "./ChatThread"
 import ClientPanel from "./ClientPanel"
 import PromoDialog from "./PromoDialog"
+import ImportarClientesDialog from "./ImportarClientesDialog"
 import { esperaRespuesta } from "./utils"
 
 type Filtro = "todas" | "atencion" | "humano"
@@ -22,6 +23,7 @@ const FILTROS: { key: Filtro; label: string }[] = [
 
 export default function CRM() {
   const [conversaciones, setConversaciones] = useState<ConversacionResumen[]>([])
+  const [clientes, setClientes] = useState<Cliente[]>([])
   const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([])
   const [clienteEtiquetas, setClienteEtiquetas] = useState<ClienteEtiqueta[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,22 +31,25 @@ export default function CRM() {
   const [busqueda, setBusqueda] = useState("")
   const [seleccionadaId, setSeleccionadaId] = useState<string | null>(null)
   const [promoAbierto, setPromoAbierto] = useState(false)
+  const [importarAbierto, setImportarAbierto] = useState(false)
 
   useEffect(() => {
     let activo = true
 
     async function cargar() {
-      const [conv, etq, clienteEtq] = await Promise.all([
+      const [conv, cli, etq, clienteEtq] = await Promise.all([
         supabase.from("conversaciones_resumen").select("*").order("actividad_at", { ascending: false }).limit(200),
+        supabase.from("clientes").select("*").order("nombre"),
         supabase.from("etiquetas").select("*").order("nombre"),
         supabase.from("cliente_etiquetas").select("cliente_id, etiqueta_id"),
       ])
       if (!activo) return
 
-      if (conv.error || etq.error || clienteEtq.error) {
+      if (conv.error || cli.error || etq.error || clienteEtq.error) {
         toast.error("No se pudieron cargar las conversaciones.")
       } else {
         setConversaciones(conv.data as ConversacionResumen[])
+        setClientes(cli.data as Cliente[])
         setEtiquetas(etq.data as Etiqueta[])
         setClienteEtiquetas(clienteEtq.data as ClienteEtiqueta[])
       }
@@ -58,6 +63,7 @@ export default function CRM() {
       .channel("crm-inbox")
       .on("postgres_changes", { event: "*", schema: "public", table: "mensajes" }, () => cargar())
       .on("postgres_changes", { event: "*", schema: "public", table: "conversaciones" }, () => cargar())
+      .on("postgres_changes", { event: "*", schema: "public", table: "clientes" }, () => cargar())
       .on("postgres_changes", { event: "*", schema: "public", table: "cliente_etiquetas" }, () => cargar())
       .subscribe()
 
@@ -113,10 +119,16 @@ export default function CRM() {
                 : `${conversaciones.length} en total · ${sinResponder} sin responder · ${conHumano} atendidas por una persona`}
             </p>
           </div>
-          <Button variant="outline" onClick={() => setPromoAbierto(true)} className="gap-2">
-            <Megaphone className="size-4" />
-            Enviar promoción
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setImportarAbierto(true)} className="gap-2">
+              <UserPlus className="size-4" />
+              Importar clientas
+            </Button>
+            <Button variant="outline" onClick={() => setPromoAbierto(true)} className="gap-2">
+              <Megaphone className="size-4" />
+              Enviar promoción
+            </Button>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -159,8 +171,9 @@ export default function CRM() {
         onOpenChange={setPromoAbierto}
         etiquetas={etiquetas}
         etiquetasPorCliente={etiquetasPorCliente}
-        conversaciones={conversaciones}
+        clientes={clientes}
       />
+      <ImportarClientesDialog open={importarAbierto} onOpenChange={setImportarAbierto} />
     </div>
   )
 }
